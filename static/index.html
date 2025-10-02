@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Personagens RPG</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            height: fit-content;
+        }
+
+        .character-display {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-height: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+        }
+
+        .control-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .dice-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .dice-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .dice-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-small {
+            padding: 10px 20px;
+            width: auto;
+            margin: 0;
+        }
+
+        .character-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+
+        .character-card:hover {
+            background: #e3f2fd;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            border-left-color: #764ba2;
+        }
+
+        .character-name {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .character-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: #333;
+            margin-top: 5px;
+        }
+
+        .attributes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .attribute {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        .attribute-name {
+            font-size: 0.8rem;
+            color: #667eea;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .attribute-value {
+            font-size: 1.5rem;
+            color: #333;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .equipment-section {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .equipment-section h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .equipment-list {
+            list-style: none;
+        }
+
+        .equipment-list li {
+            background: #f8f9fa;
+            padding: 5px 10px;
+            margin: 3px 0;
+            border-radius: 5px;
+            border-left: 3px solid #667eea;
+        }
+
+        .dice-result {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .dice-result h4 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .dice-details {
+            font-family: monospace;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        .custom-form {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group select:focus, .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .attributes-form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .attribute-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .attribute-input input {
+            width: 60px;
+            text-align: center;
+        }
+
+        .modifier-display {
+            font-weight: bold;
+            color: #667eea;
+            min-width: 40px;
+        }
+
+        .roll-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .racial-bonus {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #2196f3;
+        }
+
+        .racial-bonus h4 {
+            color: #1976d2;
+            margin-bottom: 5px;
+        }
+
+        .point-buy-info {
+            background: #f3e5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #9c27b0;
+        }
+
+        .point-buy-info h4 {
+            color: #7b1fa2;
+            margin-bottom: 10px;
+        }
+
+        .points-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #7b1fa2;
+        }
+
+        .points-warning {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+
+        .point-cost-table {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #e0e0e0;
+        }
+
+        .point-cost-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .point-cost-table th, .point-cost-table td {
+            padding: 5px 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .point-cost-table th {
+            background: #f5f5f5;
+            font-weight: bold;
+        }
+
+        .method-selector {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #4caf50;
+        }
+
+        .method-selector h4 {
+            color: #388e3c;
+            margin-bottom: 10px;
+        }
+
+        .method-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 0.9rem;
+        }
+
+        .method-btn.active {
+            background: #2e7d32;
+        }
+
+        .attribute-locked {
+            background-color: #f5f5f5 !important;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .character-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .attributes-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎲 Gerador de Personagens RPG</h1>
+            <p>Crie personagens épicos para suas aventuras</p>
+        </div>
+
+        <div class="main-content">
+            <div class="controls">
+                <div class="control-section">
+                    <h3>🧙‍♂️ Geração de Personagem</h3>
+                    <button class="btn" onclick="generateRandomCharacter()">
+                        Gerar Personagem Aleatório
+                    </button>
+                    <button class="btn" onclick="showCustomCharacterForm()">
+                        Criar Personagem Personalizado
+                    </button>
+                    <button class="btn" onclick="listCharacters()">
+                        Listar Personagens Salvos
+                    </button>
+                    <button class="btn" onclick="clearDatabase()" style="background: linear-gradient(45deg, #e74c3c, #c0392b); margin-top: 10px;">
+                        🗑️ Limpar Banco de Dados
+                    </button>
+                </div>
+
+                <div class="control-section">
+                    <h3>🎲 Rolagem de Dados</h3>
+                    <div class="dice-section">
+                        <input type="text" class="dice-input" id="diceInput" placeholder="1d20+3" value="1d20">
+                        <button class="btn btn-small" onclick="rollDice()">Rolar</button>
+                    </div>
+                    <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                        Exemplos: 1d20, 3d6+2, 2d8-1
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>💾 Ações</h3>
+                    <button class="btn" onclick="saveCurrentCharacter()" id="saveBtn" disabled>
+                        Salvar Personagem Atual
+                    </button>
+                    <button class="btn" onclick="clearDisplay()">
+                        Limpar Tela
+                    </button>
+                </div>
+            </div>
+
+            <div class="character-display" id="characterDisplay">
+                <div style="text-align: center; color: #666; margin-top: 50px;">
+                    <h3>🌟 Bem-vindo ao Gerador de Personagens!</h3>
+                    <p style="margin-top: 15px;">Clique em "Gerar Personagem Aleatório" para começar sua aventura.</p>
+                    <div style="margin-top: 30px; font-size: 3rem;">⚔️🛡️🏹</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulário de Criação Personalizada -->
+        <div class="custom-form" id="customForm">
+            <h3 style="color: #667eea; margin-bottom: 20px;">✨ Criar Personagem Personalizado</h3>
+            
+            <div class="form-group">
+                <label for="characterName">Nome do Personagem:</label>
+                <input type="text" id="characterName" placeholder="Digite o nome do seu herói">
+            </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label for="characterRace">Raça:</label>
+                    <select id="characterRace" onchange="updateRacialBonuses()">
+                        <option value="">Selecione uma raça</option>
+                        <option value="Humano">Humano</option>
+                        <option value="Elfo">Elfo</option>
+                        <option value="Anão">Anão</option>
+                        <option value="Halfling">Halfling</option>
+                        <option value="Meio-Elfo">Meio-Elfo</option>
+                        <option value="Orc">Orc</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="characterClass">Classe:</label>
+                    <select id="characterClass" onchange="updateClassBonuses()">
+                        <option value="">Selecione uma classe</option>
+                        <option value="Guerreiro">Guerreiro</option>
+                        <option value="Mago">Mago</option>
+                        <option value="Ladrão">Ladrão</option>
+                        <option value="Clérigo">Clérigo</option>
+                        <option value="Paladino">Paladino</option>
+                        <option value="Ranger">Ranger</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="racialBonuses" class="racial-bonus" style="display: none;">
+                <h4>🧬 Bônus Raciais</h4>
+                <p id="bonusDescription">Selecione uma raça para ver os bônus</p>
+            </div>
+
+            <div id="classBonuses" class="racial-bonus" style="display: none; background: #fff3e0; border-left-color: #ff9800;">
+                <h4>⚔️ Bônus de Classe</h4>
+                <p id="classDescription">Selecione uma classe para ver as sugestões</p>
+                <div style="margin-top: 10px;">
+                    <button class="btn" onclick="applyClassBonuses()" id="applyClassBtn" style="background: #ff9800; padding: 8px 15px; font-size: 0.9rem;">
+                        ✨ Aplicar Bônus Sugeridos
+                    </button>
+                    <small style="display: block; margin-top: 5px; color: #666;">
+                        Os bônus de classe são opcionais e podem ser aplicados aos seus atributos base.
+                    </small>
+                </div>
+            </div>
+
+            <div class="method-selector">
+                <h4>🎯 Método de Geração de Atributos</h4>
+                <button class="method-btn active" onclick="setAttributeMethod('pointbuy')" id="pointbuyBtn">
+                    Point Buy (27 pontos)
+                </button>
+                <button class="method-btn" onclick="setAttributeMethod('manual')" id="manualBtn">
+                    Manual
+                </button>
+                <button class="method-btn" onclick="setAttributeMethod('rolling')" id="rollingBtn">
+                    Rolagem de Dados
+                </button>
+            </div>
+
+            <div id="pointBuyInfo" class="point-buy-info">
+                <h4>📊 Sistema Point-Buy D&D 5E</h4>
+                <div class="points-display">
+                    Pontos Restantes: <span id="pointsRemaining">27</span>/27
+                </div>
+                <div class="point-cost-table">
+                    <table>
+                        <tr><th>Valor</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th><th>15</th></tr>
+                        <tr><th>Custo</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>7</td><td>9</td></tr>
+                    </table>
+                </div>
+                <small style="color: #666;">
+                    No Point-Buy, você começa com todos os atributos em 8 e distribui 27 pontos.
+                    Valores acima de 13 custam mais pontos.
+                </small>
+            </div>
+
+            <h4 style="color: #667eea; margin: 20px 0 10px 0;">📊 Atributos</h4>
+            <div class="attributes-form">
+                <div class="attribute-input">
+                    <label style="min-width: 80px;">Força:</label>
+                    <input type="number" id="forca" min="8" max="15" value="8" onchange="updateBaseAttribute('forca')" oninput="updateBaseAttribute('forca')">
+                    <button class="roll-btn" onclick="rollAttribute('forca')" id="rollForca">4d6</button>
+                    <span class="modifier-display" id="forcaMod">-1</span>
+                </div>
+                <div class="attribute-input">
+                    <label style="min-width: 80px;">Destreza:</label>
+                    <input type="number" id="destreza" min="8" max="15" value="8" onchange="updateBaseAttribute('destreza')" oninput="updateBaseAttribute('destreza')">
+                    <button class="roll-btn" onclick="rollAttribute('destreza')" id="rollDestreza">4d6</button>
+                    <span class="modifier-display" id="destrezaMod">-1</span>
+                </div>
+                <div class="attribute-input">
+                    <label style="min-width: 100px;">Constituição:</label>
+                    <input type="number" id="constituicao" min="8" max="15" value="8" onchange="updateBaseAttribute('constituicao')" oninput="updateBaseAttribute('constituicao')">
+                    <button class="roll-btn" onclick="rollAttribute('constituicao')" id="rollConstituicao">4d6</button>
+                    <span class="modifier-display" id="constituicaoMod">-1</span>
+                </div>
+                <div class="attribute-input">
+                    <label style="min-width: 100px;">Inteligência:</label>
+                    <input type="number" id="inteligencia" min="8" max="15" value="8" onchange="updateBaseAttribute('inteligencia')" oninput="updateBaseAttribute('inteligencia')">
+                    <button class="roll-btn" onclick="rollAttribute('inteligencia')" id="rollInteligencia">4d6</button>
+                    <span class="modifier-display" id="inteligenciaMod">-1</span>
+                </div>
+                <div class="attribute-input">
+                    <label style="min-width: 80px;">Sabedoria:</label>
+                    <input type="number" id="sabedoria" min="8" max="15" value="8" onchange="updateBaseAttribute('sabedoria')" oninput="updateBaseAttribute('sabedoria')">
+                    <button class="roll-btn" onclick="rollAttribute('sabedoria')" id="rollSabedoria">4d6</button>
+                    <span class="modifier-display" id="sabedoriaMod">-1</span>
+                </div>
+                <div class="attribute-input">
+                    <label style="min-width: 80px;">Carisma:</label>
+                    <input type="number" id="carisma" min="8" max="15" value="8" onchange="updateBaseAttribute('carisma')" oninput="updateBaseAttribute('carisma')">
+                    <button class="roll-btn" onclick="rollAttribute('carisma')" id="rollCarisma">4d6</button>
+                    <span class="modifier-display" id="carismaMod">-1</span>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="btn" onclick="createCustomCharacter()">
+                    ⚡ Criar Personagem
+                </button>
+                <button class="btn" onclick="hideCustomForm()" style="background: #666;">
+                    ❌ Cancelar
+                </button>
+                <button class="btn" onclick="rollAllAttributes()" style="background: #4caf50;">
+                    🎲 Rolar Todos os Atributos
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = '/api/v1';
+        let currentCharacter = null;
+        let currentMethod = 'pointbuy'; // pointbuy, manual, rolling
+
+        // Sistema Point-Buy D&D 5E
+        const pointBuyCosts = {
+            8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9
+        };
+
+        // Dados dos bônus raciais
+        const racialBonuses = {
+            "Humano": {
+                description: "+1 em todos os atributos",
+                bonuses: {forca: 1, destreza: 1, constituicao: 1, inteligencia: 1, sabedoria: 1, carisma: 1}
+            },
+            "Elfo": {
+                description: "+2 Destreza, +1 Inteligência",
+                bonuses: {destreza: 2, inteligencia: 1}
+            },
+            "Anão": {
+                description: "+2 Constituição, +1 Sabedoria",
+                bonuses: {constituicao: 2, sabedoria: 1}
+            },
+            "Halfling": {
+                description: "+2 Destreza, +1 Carisma",
+                bonuses: {destreza: 2, carisma: 1}
+            },
+            "Meio-Elfo": {
+                description: "+2 Carisma, +1 Força",
+                bonuses: {carisma: 2, forca: 1}
+            },
+            "Orc": {
+                description: "+2 Força, +1 Constituição",
+                bonuses: {forca: 2, constituicao: 1}
+            }
+        };
+
+        // Bônus sugeridos por classe (para focar nos atributos importantes)
+        const classBonuses = {
+            "Guerreiro": {
+                description: "Sugestão: Força +2, Constituição +1",
+                bonuses: {forca: 2, constituicao: 1}
+            },
+            "Mago": {
+                description: "Sugestão: Inteligência +2, Sabedoria +1",
+                bonuses: {inteligencia: 2, sabedoria: 1}
+            },
+            "Ladrão": {
+                description: "Sugestão: Destreza +2, Carisma +1",
+                bonuses: {destreza: 2, carisma: 1}
+            },
+            "Clérigo": {
+                description: "Sugestão: Sabedoria +2, Constituição +1",
+                bonuses: {sabedoria: 2, constituicao: 1}
+            },
+            "Paladino": {
+                description: "Sugestão: Força +1, Carisma +2",
+                bonuses: {forca: 1, carisma: 2}
+            },
+            "Ranger": {
+                description: "Sugestão: Destreza +1, Sabedoria +2",
+                bonuses: {destreza: 1, sabedoria: 2}
+            }
+        };
+
+        // Rastrear valores base (sem bônus)
+        let baseAttributes = {
+            forca: 8, destreza: 8, constituicao: 8, 
+            inteligencia: 8, sabedoria: 8, carisma: 8
+        };
+
+        // Função para calcular modificador de atributo
+        function calculateModifier(value) {
+            return Math.floor((value - 10) / 2);
+        }
+
+        // Função para formatar modificador
+        function formatModifier(modifier) {
+            return modifier >= 0 ? `+${modifier}` : `${modifier}`;
+        }
+
+        // Definir método de geração de atributos
+        function setAttributeMethod(method) {
+            currentMethod = method;
+            
+            // Atualizar botões
+            document.querySelectorAll('.method-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(method + 'Btn').classList.add('active');
+            
+            const attributes = ['forca', 'destreza', 'constituicao', 'inteligencia', 'sabedoria', 'carisma'];
+            const pointBuyInfo = document.getElementById('pointBuyInfo');
+            
+            // Resetar valores base
+            attributes.forEach(attr => {
+                baseAttributes[attr] = method === 'pointbuy' ? 8 : 10;
+            });
+            
+            if (method === 'pointbuy') {
+                // Point-Buy: limitar valores e mostrar info
+                pointBuyInfo.style.display = 'block';
+                attributes.forEach(attr => {
+                    const input = document.getElementById(attr);
+                    const rollBtn = document.getElementById('roll' + attr.charAt(0).toUpperCase() + attr.slice(1));
+                    input.min = 8;
+                    input.max = 15;
+                    input.classList.remove('attribute-locked');
+                    rollBtn.style.display = 'none';
+                });
+                
+            } else if (method === 'manual') {
+                // Manual: valores livres
+                pointBuyInfo.style.display = 'none';
+                attributes.forEach(attr => {
+                    const input = document.getElementById(attr);
+                    const rollBtn = document.getElementById('roll' + attr.charAt(0).toUpperCase() + attr.slice(1));
+                    input.min = 3;
+                    input.max = 18;
+                    input.classList.remove('attribute-locked');
+                    rollBtn.style.display = 'none';
+                });
+                
+            } else if (method === 'rolling') {
+                // Rolagem: mostrar botões de rolagem
+                pointBuyInfo.style.display = 'none';
+                attributes.forEach(attr => {
+                    const input = document.getElementById(attr);
+                    const rollBtn = document.getElementById('roll' + attr.charAt(0).toUpperCase() + attr.slice(1));
+                    input.min = 3;
+                    input.max = 18;
+                    input.classList.remove('attribute-locked');
+                    rollBtn.style.display = 'inline-block';
+                });
+            }
+            
+            applyAllBonuses();
+        }
+
+        // Atualizar atributo base e recalcular
+        function updateBaseAttribute(attributeName) {
+            const input = document.getElementById(attributeName);
+            const value = parseInt(input.value) || 8;
+            
+            baseAttributes[attributeName] = value;
+            
+            if (currentMethod === 'pointbuy') {
+                updatePointBuy();
+            } else {
+                applyAllBonuses();
+            }
+        }
+
+        // Aplicar todos os bônus (racial + classe se aplicável)
+        function applyAllBonuses() {
+            const raceSelect = document.getElementById('characterRace');
+            const selectedRace = raceSelect.value;
+            
+            const attributes = ['forca', 'destreza', 'constituicao', 'inteligencia', 'sabedoria', 'carisma'];
+            
+            attributes.forEach(attr => {
+                const input = document.getElementById(attr);
+                let finalValue = baseAttributes[attr];
+                
+                // Aplicar bônus racial automaticamente
+                if (selectedRace && racialBonuses[selectedRace]) {
+                    const racialBonus = racialBonuses[selectedRace].bonuses[attr] || 0;
+                    finalValue += racialBonus;
+                }
+                
+                input.value = finalValue;
+                
+                // Atualizar modificador
+                const modDisplay = document.getElementById(attr + 'Mod');
+                const modifier = calculateModifier(finalValue);
+                modDisplay.textContent = formatModifier(modifier);
+                
+                // Colorir baseado no modificador
+                if (modifier > 0) {
+                    modDisplay.style.color = '#4caf50';
+                } else if (modifier < 0) {
+                    modDisplay.style.color = '#f44336';
+                } else {
+                    modDisplay.style.color = '#667eea';
+                }
+            });
+            
+            if (currentMethod === 'pointbuy') {
+                updatePointBuyDisplay();
+            }
+        }
+
+        // Atualizar sistema Point-Buy
+        function updatePointBuy() {
+            if (currentMethod !== 'pointbuy') {
+                applyAllBonuses();
+                return;
+            }
+
+            updatePointBuyDisplay();
+            applyAllBonuses();
+        }
+
+        // Atualizar apenas a exibição do Point-Buy (sem modificar atributos)
+        function updatePointBuyDisplay() {
+            const attributes = ['forca', 'destreza', 'constituicao', 'inteligencia', 'sabedoria', 'carisma'];
+            let totalPointsUsed = 0;
+            
+            attributes.forEach(attr => {
+                const baseValue = baseAttributes[attr];
+                totalPointsUsed += pointBuyCosts[baseValue] || 0;
+            });
+
+            const pointsRemaining = 27 - totalPointsUsed;
+            const pointsDisplay = document.getElementById('pointsRemaining');
+            
+            pointsDisplay.textContent = pointsRemaining;
+            
+            // Colorir baseado nos pontos restantes
+            if (pointsRemaining < 0) {
+                pointsDisplay.className = 'points-warning';
+                pointsDisplay.textContent = `${pointsRemaining} (EXCEDEU!)`;
+            } else if (pointsRemaining === 0) {
+                pointsDisplay.className = 'points-display';
+                pointsDisplay.style.color = '#4caf50';
+            } else {
+                pointsDisplay.className = 'points-display';
+                pointsDisplay.style.color = '#7b1fa2';
+            }
+
+            // Atualizar limites dos inputs baseado nos pontos restantes
+            attributes.forEach(attr => {
+                const input = document.getElementById(attr);
+                const currentValue = baseAttributes[attr];
+                
+                // Calcular valor máximo possível com os pontos restantes
+                let maxPossible = 15;
+                for (let testValue = currentValue + 1; testValue <= 15; testValue++) {
+                    const additionalCost = pointBuyCosts[testValue] - pointBuyCosts[currentValue];
+                    if (additionalCost > pointsRemaining) {
+                        maxPossible = testValue - 1;
+                        break;
+                    }
+                }
+                
+                input.max = maxPossible;
+                
+                // Destacar se não pode aumentar mais
+                if (maxPossible === currentValue && pointsRemaining > 0) {
+                    input.style.borderColor = '#ff9800';
+                } else if (pointsRemaining < 0) {
+                    input.style.borderColor = '#f44336';
+                } else {
+                    input.style.borderColor = '#4caf50';
+                }
+            });
+        }
+
+        // Atualizar modificadores na tela
+        function updateModifiers() {
+            if (currentMethod === 'pointbuy') {
+                updatePointBuy();
+                return;
+            }
+            
+            applyAllBonuses();
+        }
+
+        // Atualizar bônus raciais
+        function updateRacialBonuses() {
+            const raceSelect = document.getElementById('characterRace');
+            const bonusDiv = document.getElementById('racialBonuses');
+            const bonusDesc = document.getElementById('bonusDescription');
+            
+            const selectedRace = raceSelect.value;
+            
+            if (selectedRace && racialBonuses[selectedRace]) {
+                bonusDiv.style.display = 'block';
+                bonusDesc.innerHTML = `
+                    <strong>${racialBonuses[selectedRace].description}</strong><br>
+                    <small>Os bônus são aplicados automaticamente aos atributos em tempo real.</small>
+                `;
+            } else {
+                bonusDiv.style.display = 'none';
+            }
+            
+            // Aplicar bônus automaticamente
+            applyAllBonuses();
+        }
+
+        // Atualizar bônus de classe
+        function updateClassBonuses() {
+            const classSelect = document.getElementById('characterClass');
+            const bonusDiv = document.getElementById('classBonuses');
+            const bonusDesc = document.getElementById('classDescription');
+            
+            const selectedClass = classSelect.value;
+            
+            if (selectedClass && classBonuses[selectedClass]) {
+                bonusDiv.style.display = 'block';
+                bonusDesc.innerHTML = `
+                    <strong>${classBonuses[selectedClass].description}</strong><br>
+                    <small>Estes são bônus sugeridos para otimizar sua classe.</small>
+                `;
+            } else {
+                bonusDiv.style.display = 'none';
+            }
+        }
+
+        // Aplicar bônus de classe aos atributos base
+        function applyClassBonuses() {
+            const classSelect = document.getElementById('characterClass');
+            const selectedClass = classSelect.value;
+            
+            if (!selectedClass || !classBonuses[selectedClass]) {
+                alert('Selecione uma classe primeiro!');
+                return;
+            }
+            
+            const confirm = window.confirm(
+                `Isso irá aplicar os bônus sugeridos da classe ${selectedClass} aos seus atributos base. ` +
+                `Os bônus raciais continuarão sendo aplicados automaticamente. Continuar?`
+            );
+            
+            if (!confirm) return;
+            
+            // Aplicar bônus de classe aos valores base
+            const bonuses = classBonuses[selectedClass].bonuses;
+            Object.keys(bonuses).forEach(attr => {
+                const bonus = bonuses[attr];
+                const currentBase = baseAttributes[attr];
+                const newValue = currentBase + bonus;
+                
+                // Verificar limites
+                if (currentMethod === 'pointbuy') {
+                    if (newValue <= 15) {
+                        baseAttributes[attr] = newValue;
+                    }
+                } else {
+                    if (newValue <= 18) {
+                        baseAttributes[attr] = newValue;
+                    }
+                }
+            });
+            
+            // Recalcular tudo
+            applyAllBonuses();
+            
+            alert(`Bônus de classe aplicados! Os atributos foram ajustados baseado nas sugestões da classe ${selectedClass}.`);
+        }
+
+        // Rolar um atributo específico (4d6, descarta o menor)
+        async function rollAttribute(attributeName) {
+            try {
+                // Simular 4d6, descartando o menor
+                const response = await fetch(`${API_BASE_URL}/roll/4d6`);
+                const result = await response.json();
+                
+                // Pegar os 3 maiores valores
+                const sortedRolls = [...result.rolls].sort((a, b) => b - a);
+                const finalValue = sortedRolls.slice(0, 3).reduce((sum, roll) => sum + roll, 0);
+                
+                baseAttributes[attributeName] = finalValue;
+                applyAllBonuses();
+                
+                // Mostrar feedback visual
+                const input = document.getElementById(attributeName);
+                const originalColor = input.style.backgroundColor;
+                input.style.backgroundColor = '#e8f5e8';
+                setTimeout(() => {
+                    input.style.backgroundColor = originalColor;
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Erro ao rolar atributo:', error);
+            }
+        }
+
+        // Rolar todos os atributos
+        async function rollAllAttributes() {
+            const attributes = ['forca', 'destreza', 'constituicao', 'inteligencia', 'sabedoria', 'carisma'];
+            
+            for (const attr of attributes) {
+                await rollAttribute(attr);
+                // Pequeno delay para ver a animação
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+        }
+
+        // Mostrar formulário personalizado
+        function showCustomCharacterForm() {
+            document.getElementById('customForm').style.display = 'block';
+            setAttributeMethod('pointbuy'); // Começar com Point-Buy por padrão
+        }
+
+        // Esconder formulário personalizado
+        function hideCustomForm() {
+            document.getElementById('customForm').style.display = 'none';
+        }
+
+        // Criar personagem personalizado
+        async function createCustomCharacter() {
+            const name = document.getElementById('characterName').value.trim();
+            const race = document.getElementById('characterRace').value;
+            const characterClass = document.getElementById('characterClass').value;
+            
+            if (!name) {
+                alert('Por favor, digite um nome para o personagem!');
+                return;
+            }
+            
+            if (!race) {
+                alert('Por favor, selecione uma raça!');
+                return;
+            }
+            
+            if (!characterClass) {
+                alert('Por favor, selecione uma classe!');
+                return;
+            }
+
+            // Validar Point-Buy se estiver usando
+            if (currentMethod === 'pointbuy') {
+                const pointsRemaining = parseInt(document.getElementById('pointsRemaining').textContent.split(' ')[0]);
+                if (pointsRemaining < 0) {
+                    alert('Você excedeu o limite de pontos! Reduza alguns atributos.');
+                    return;
+                }
+                if (pointsRemaining > 0) {
+                    const confirm = window.confirm(`Você ainda tem ${pointsRemaining} pontos não utilizados. Deseja continuar mesmo assim?`);
+                    if (!confirm) return;
+                }
+            }
+
+            // Coletar atributos finais (já com bônus aplicados)
+            const finalAttributes = {
+                forca: parseInt(document.getElementById('forca').value) || 8,
+                destreza: parseInt(document.getElementById('destreza').value) || 8,
+                constituicao: parseInt(document.getElementById('constituicao').value) || 8,
+                inteligencia: parseInt(document.getElementById('inteligencia').value) || 8,
+                sabedoria: parseInt(document.getElementById('sabedoria').value) || 8,
+                carisma: parseInt(document.getElementById('carisma').value) || 8
+            };
+
+            // Criar o objeto personagem
+            const customCharacter = {
+                nome: name,
+                raca: race,
+                classe: characterClass,
+                atributos: finalAttributes,
+                pontos_vida: calculateHitPoints(characterClass, finalAttributes.constituicao),
+                equipamentos: getClassEquipment(characterClass),
+                pericias: getClassSkills(characterClass),
+                nivel: 1
+            };
+
+            currentCharacter = customCharacter;
+            displayCharacter(customCharacter);
+            hideCustomForm();
+            document.getElementById('saveBtn').disabled = false;
+        }
+
+        // Calcular pontos de vida baseado na classe e constituição
+        function calculateHitPoints(characterClass, constitution) {
+            const hitDice = {
+                "Guerreiro": 10,
+                "Paladino": 10,
+                "Ranger": 10,
+                "Clérigo": 8,
+                "Ladrão": 8,
+                "Mago": 6
+            };
+            
+            const baseHP = hitDice[characterClass] || 8;
+            const conModifier = calculateModifier(constitution);
+            return baseHP + conModifier;
+        }
+
+        // Obter equipamentos baseados na classe
+        function getClassEquipment(characterClass) {
+            const equipment = {
+                "Guerreiro": {armas: ["Espada Longa", "Escudo"], armadura: "Cota de Malha", itens: ["Kit de Aventureiro"], dinheiro: 150},
+                "Mago": {armas: ["Cajado"], armadura: "Robes", itens: ["Grimório", "Kit de Componentes"], dinheiro: 100},
+                "Ladrão": {armas: ["Punhal", "Arco Curto"], armadura: "Armadura de Couro", itens: ["Kit de Ladrão"], dinheiro: 120},
+                "Clérigo": {armas: ["Martelo de Guerra", "Escudo"], armadura: "Cota de Malha", itens: ["Símbolo Sagrado"], dinheiro: 140},
+                "Paladino": {armas: ["Espada Longa", "Escudo"], armadura: "Cota de Placas", itens: ["Símbolo Sagrado"], dinheiro: 160},
+                "Ranger": {armas: ["Arco Longo", "Espada Curta"], armadura: "Armadura de Couro", itens: ["Kit de Sobrevivência"], dinheiro: 130}
+            };
+            
+            return equipment[characterClass] || {armas: [], armadura: "Robes", itens: [], dinheiro: 100};
+        }
+
+        // Obter perícias baseadas na classe
+        function getClassSkills(characterClass) {
+            const skills = {
+                "Guerreiro": ["Atletismo", "Intimidação"],
+                "Mago": ["Arcana", "História"],
+                "Ladrão": ["Acrobacia", "Furtividade"],
+                "Clérigo": ["História", "Medicina"],
+                "Paladino": ["Atletismo", "Religião"],
+                "Ranger": ["Sobrevivência", "Percepção"]
+            };
+            
+            return skills[characterClass] || [];
+        }
+
+        async function generateRandomCharacter() {
+            const displayDiv = document.getElementById('characterDisplay');
+            displayDiv.innerHTML = '<div class="loading">🎲 Gerando personagem épico...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/character/random`);
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+                
+                const character = await response.json();
+                currentCharacter = character;
+                displayCharacter(character);
+                document.getElementById('saveBtn').disabled = false;
+            } catch (error) {
+                displayDiv.innerHTML = `<div class="error">❌ Erro ao gerar personagem: ${error.message}</div>`;
+            }
+        }
+
+        function displayCharacter(character) {
+            const displayDiv = document.getElementById('characterDisplay');
+            
+            // Calcular modificadores para exibir
+            const modifiers = {
+                forca: calculateModifier(character.atributos.forca),
+                destreza: calculateModifier(character.atributos.destreza),
+                constituicao: calculateModifier(character.atributos.constituicao),
+                inteligencia: calculateModifier(character.atributos.inteligencia),
+                sabedoria: calculateModifier(character.atributos.sabedoria),
+                carisma: calculateModifier(character.atributos.carisma)
+            };
+            
+            const html = `
+                <div class="character-card">
+                    <div class="character-name">⚔️ ${character.nome}</div>
+                    
+                    <div class="character-info">
+                        <div class="info-item">
+                            <div class="info-label">Raça</div>
+                            <div class="info-value">${character.raca}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Classe</div>
+                            <div class="info-value">${character.classe}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Pontos de Vida</div>
+                            <div class="info-value">❤️ ${character.pontos_vida}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Dinheiro</div>
+                            <div class="info-value">💰 ${character.equipamentos.dinheiro} PO</div>
+                        </div>
+                    </div>
+
+                    <h4 style="color: #667eea; margin-bottom: 15px;">📊 Atributos</h4>
+                    <div class="attributes-grid">
+                        <div class="attribute">
+                            <div class="attribute-name">Força</div>
+                            <div class="attribute-value">${character.atributos.forca}</div>
+                            <div style="font-size: 0.9rem; color: #667eea;">${formatModifier(modifiers.forca)}</div>
+                        </div>
+                        <div class="attribute">
+                            <div class="attribute-name">Destreza</div>
+                            <div class="attribute-value">${character.atributos.destreza}</div>
+                            <div style="font-size: 0.9rem; color: #667eea;">${formatModifier(modifiers.destreza)}</div>
+                        </div>
+                        <div class="attribute">
+                            <div class="attribute-name">Constituição</div>
+                            <div class="attribute-value">${character.atributos.constituicao}</div>
+                            <div style="font-size: 0.9rem; color: #667eea;">${formatModifier(modifiers.constituicao)}</div>
+                        </div>
+                        <div class="attribute">
+                            <div class="attribute-name">Inteligência</div>
+                            <div class="attribute-value">${character.atributos.inteligencia}</div>
+                            <div style="font-size: 0.9rem; color: #667eea;">${formatModifier(modifiers.inteligencia)}</div>
+                        </div>
+                        <div class="attribute">
+                            <div class="attribute-name">Sabedoria</div>
+                            <div class="attribute-value">${character.atributos.sabedoria}</div>
+                            <div style="font-size: 0.9rem; color: #667eea;">${formatModifier(modifiers.sabedoria)}</div>
+                        </div>
+                        <div class="attribute">
+                            <div class="attribute-name">Carisma</div>
+                            <div class="attribute-value">${character.atributos.carisma}</div>
+                            <div style="font-size: 0.9rem; color: #667eea;">${formatModifier(modifiers.carisma)}</div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                        <div class="equipment-section">
+                            <h4>⚔️ Armas</h4>
+                            <ul class="equipment-list">
+                                ${character.equipamentos.armas.map(arma => `<li>${arma}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="equipment-section">
+                            <h4>🛡️ Equipamentos</h4>
+                            <ul class="equipment-list">
+                                <li><strong>Armadura:</strong> ${character.equipamentos.armadura}</li>
+                                ${character.equipamentos.itens.map(item => `<li>${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="equipment-section" style="margin-top: 15px;">
+                        <h4>🎯 Perícias</h4>
+                        <ul class="equipment-list">
+                            ${character.pericias.map(pericia => `<li>${pericia}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+            
+            displayDiv.innerHTML = html;
+        }
+
+        async function rollDice() {
+            const diceInput = document.getElementById('diceInput');
+            const notation = diceInput.value.trim();
+            
+            if (!notation) {
+                alert('Por favor, insira uma notação de dado válida!');
+                return;
+            }
+
+            const displayDiv = document.getElementById('characterDisplay');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/roll/${encodeURIComponent(notation)}`);
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                const resultHtml = `
+                    <div class="dice-result">
+                        <h4>🎲 Resultado da Rolagem: ${notation}</h4>
+                        <div style="font-size: 2rem; font-weight: bold; color: #2e7d32; text-align: center; margin: 15px 0;">
+                            ${result.result}
+                        </div>
+                        <div class="dice-details">
+                            <strong>Dados rolados:</strong> [${result.rolls.join(', ')}]<br>
+                            <strong>Modificador:</strong> ${result.modifier >= 0 ? '+' : ''}${result.modifier}<br>
+                            <strong>Cálculo:</strong> ${result.rolls.join(' + ')} ${result.modifier >= 0 ? '+ ' + result.modifier : '- ' + Math.abs(result.modifier)} = ${result.result}
+                        </div>
+                    </div>
+                `;
+                
+                // Se há um personagem sendo exibido, adiciona o resultado abaixo
+                if (currentCharacter) {
+                    displayDiv.innerHTML = displayDiv.innerHTML + resultHtml;
+                } else {
+                    displayDiv.innerHTML = resultHtml;
+                }
+                
+            } catch (error) {
+                displayDiv.innerHTML = `<div class="error">❌ Erro ao rolar dados: ${error.message}</div>`;
+            }
+        }
+
+        async function saveCurrentCharacter() {
+            if (!currentCharacter) {
+                alert('Nenhum personagem para salvar!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/character`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(currentCharacter)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+
+                const result = await response.json();
+                alert(`✅ Personagem "${currentCharacter.nome}" salvo com sucesso! ID: ${result.id}`);
+                
+            } catch (error) {
+                alert(`❌ Erro ao salvar personagem: ${error.message}`);
+            }
+        }
+
+        async function listCharacters() {
+            const displayDiv = document.getElementById('characterDisplay');
+            displayDiv.innerHTML = '<div class="loading">📋 Carregando personagens salvos...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/characters`);
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+                
+                const characters = await response.json();
+                
+                if (characters.length === 0) {
+                    displayDiv.innerHTML = `
+                        <div style="text-align: center; color: #666; margin-top: 50px;">
+                            <h3>📝 Nenhum personagem salvo</h3>
+                            <p style="margin-top: 15px;">Gere um personagem e salve-o para vê-lo aqui!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="color: #667eea; margin: 0;">📋 Personagens Salvos</h3>
+                        <span style="color: #666; font-size: 0.9rem;">${characters.length} personagen${characters.length === 1 ? 's' : 's'}</span>
+                    </div>
+                    <div style="max-height: 60vh; overflow-y: auto; padding-right: 10px;">
+                `;
+                
+                characters.forEach((char, index) => {
+                    html += `
+                        <div class="character-card" style="margin-bottom: 12px; cursor: pointer; transition: transform 0.2s;" 
+                             onclick="loadCharacter('${char.id}')"
+                             onmouseover="this.style.transform='translateY(-2px)'"
+                             onmouseout="this.style.transform='translateY(0)'">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong style="color: #333; font-size: 1.1rem;">${char.nome}</strong>
+                                    <br><span style="color: #667eea; font-weight: 500;">${char.raca} ${char.classe}</span>
+                                    <br><small style="color: #888;">ID: ${char.id}</small>
+                                </div>
+                                <div style="color: #667eea; font-size: 1.5rem;">👁️</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                displayDiv.innerHTML = html;
+                
+            } catch (error) {
+                displayDiv.innerHTML = `<div class="error">❌ Erro ao carregar personagens: ${error.message}</div>`;
+            }
+        }
+
+        async function loadCharacter(characterId) {
+            const displayDiv = document.getElementById('characterDisplay');
+            displayDiv.innerHTML = '<div class="loading">🔍 Carregando personagem...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/character/${characterId}`);
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+                
+                const character = await response.json();
+                currentCharacter = character;
+                displayCharacter(character);
+                document.getElementById('saveBtn').disabled = true; // Já está salvo
+                
+            } catch (error) {
+                displayDiv.innerHTML = `<div class="error">❌ Erro ao carregar personagem: ${error.message}</div>`;
+            }
+        }
+
+        function clearDisplay() {
+            const displayDiv = document.getElementById('characterDisplay');
+            currentCharacter = null;
+            document.getElementById('saveBtn').disabled = true;
+            
+            displayDiv.innerHTML = `
+                <div style="text-align: center; color: #666; margin-top: 50px;">
+                    <h3>🌟 Tela Limpa!</h3>
+                    <p style="margin-top: 15px;">Gere um novo personagem ou role alguns dados.</p>
+                    <div style="margin-top: 30px; font-size: 3rem;">⚔️🛡️🏹</div>
+                </div>
+            `;
+        }
+
+        // Limpar banco de dados
+        async function clearDatabase() {
+            const confirm = window.confirm(
+                '⚠️ ATENÇÃO: Esta ação irá deletar TODOS os personagens salvos permanentemente!\n\n' +
+                'Esta ação não pode ser desfeita. Tem certeza que deseja continuar?'
+            );
+            
+            if (!confirm) return;
+            
+            const doubleConfirm = window.confirm(
+                '🚨 ÚLTIMA CONFIRMAÇÃO: Todos os personagens serão perdidos para sempre!\n\n' +
+                'Digite "CONFIRMAR" para continuar (cancelar para abortar):'
+            );
+            
+            if (!doubleConfirm) return;
+            
+            const displayDiv = document.getElementById('characterDisplay');
+            displayDiv.innerHTML = '<div class="loading">🗑️ Limpando banco de dados...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/characters/clear`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+                
+                displayDiv.innerHTML = `
+                    <div style="text-align: center; color: #27ae60; margin-top: 50px;">
+                        <h3>✅ Banco de Dados Limpo!</h3>
+                        <p style="margin-top: 15px;">Todos os personagens foram removidos com sucesso.</p>
+                        <div style="margin-top: 30px; font-size: 3rem;">🗑️✨</div>
+                    </div>
+                `;
+                
+                alert('✅ Banco de dados limpo com sucesso!');
+                
+            } catch (error) {
+                displayDiv.innerHTML = `<div class="error">❌ Erro ao limpar banco de dados: ${error.message}</div>`;
+                alert('❌ Erro ao limpar banco de dados: ' + error.message);
+            }
+        }
+
+        // Permitir rolar dados com Enter
+        document.getElementById('diceInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                rollDice();
+            }
+        });
+    </script>
+</body>
+</html>

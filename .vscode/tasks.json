@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "Run main.py",
+			"command": "/home/baza/Documentos/Sistemas_Distribuidos/rpg-character-generator/venv/bin/python",
+			"args": [
+				"main.py"
+			],
+			"group": "build",
+			"isBackground": false
+		}
+	]
+}
